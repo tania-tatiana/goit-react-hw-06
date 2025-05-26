@@ -1,13 +1,18 @@
-import { useMemo, useState, useEffect } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { useEffect, useState } from "react";
 import "./App.css";
 import { ContactForm } from "./components/ContactForm/ContactForm";
 import { SearchBox } from "./components/SearchBox/SearchBox";
 import { ContactList } from "./components/ContactList/ContactList";
-import { useDebounce } from "use-debounce";
+import { useDispatch, useSelector } from "react-redux";
+import { addContact } from "./redux/contactsSlice";
 
-const data = [
+// const dispatch = useDispatch();
+// const contacts = useSelector((state) => state.contacts.value);
+// const handleSubmit = () => {
+//   dispatch(deposit(5));
+// };
+
+const defaultData = [
   { id: "id-1", name: "Rosie Simpson", number: "459-12-56" },
   { id: "id-2", name: "Hermione Kline", number: "443-89-12" },
   { id: "id-3", name: "Eden Clements", number: "645-17-79" },
@@ -15,46 +20,44 @@ const data = [
 ];
 
 function App() {
-  const [names, setNames] = useState(() => {
-    const saved = localStorage.getItem("contacts");
-    return saved ? JSON.parse(saved) : data;
-  });
+  const dispatch = useDispatch();
+  const contacts = useSelector((state) => state.contacts.items);
+
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("contacts", JSON.stringify(names));
-  }, [names]);
+    if (!initialized && contacts.length === 0) {
+      dispatch(addContact(defaultData));
+      setInitialized(true);
+    }
+  }, [contacts.length, dispatch, initialized]);
 
-  const [inputValue, setInputValue] = useState("");
-  const [debounceInputValue] = useDebounce(inputValue, 500);
+  // const [inputValue, setInputValue] = useState("");
+  // const [debounceInputValue] = useDebounce(inputValue, 500);
 
-  const visibleNames = useMemo(() => {
-    return names.filter((name) =>
-      name.name.toLowerCase().includes(debounceInputValue.toLowerCase())
-    );
-  }, [debounceInputValue, names]);
+  // const visibleNames = useMemo(() => {
+  //   return contacts.filter((contacts) =>
+  //     contacts.name.toLowerCase().includes(debounceInputValue.toLowerCase())
+  //   );
+  // }, [debounceInputValue, contacts]);
 
-  const addNewUser = (newUsers) => {
-    setNames((prevUsers) => {
-      return [...prevUsers, ...newUsers];
-    });
-  };
+  // const addNewUser = (newUsers) => {
+  //   setNames((prevUsers) => {
+  //     return [...prevUsers, ...newUsers];
+  //   });
+  // };
 
-  const deleteUser = (userId) => {
-    setNames((prevTasks) => {
-      return prevTasks.filter((user) => user.id !== userId);
-    });
-  };
+  // const deleteUser = (userId) => {
+  //   setNames((prevTasks) => {
+  //     return prevTasks.filter((user) => user.id !== userId);
+  //   });
+  // };
 
   return (
     <div className="container">
-      <ContactForm onSubmit={addNewUser} />
-      <SearchBox inputValue={inputValue} setInputValue={setInputValue} />
-      <ContactList
-        data={visibleNames}
-        text={inputValue}
-        onChange={setInputValue}
-        onDelete={deleteUser}
-      />
+      <ContactForm />
+      <SearchBox />
+      <ContactList />
     </div>
   );
 }

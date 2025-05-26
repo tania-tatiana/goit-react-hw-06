@@ -3,6 +3,14 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import "yup-phone-lite";
 import { nanoid } from "nanoid";
+import { addContact } from "../../redux/contactsSlice";
+import { useDispatch } from "react-redux";
+
+// const dispatch = useDispatch();
+// const conatcts = useSelector((state) => state.contacts.value);
+// const handleSubmit = () => {
+//   dispatch(deposit(5));
+// };
 
 const formSchema = Yup.object().shape({
   username: Yup.string()
@@ -16,14 +24,16 @@ const formSchema = Yup.object().shape({
 
 const fieldId = nanoid();
 
-export const ContactForm = ({ onSubmit }) => {
+export const ContactForm = () => {
+  const dispatch = useDispatch();
+
   const handleSubmit = (values, helpers) => {
     const newContact = {
       id: nanoid(),
       name: values.username,
       number: values.usernumber,
     };
-    onSubmit([newContact]);
+    dispatch(addContact([newContact]));
     helpers.resetForm();
   };
 
